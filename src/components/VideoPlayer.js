@@ -11,6 +11,7 @@ import {
   Text,
   View,
   Easing,
+  Platform,
 } from "react-native";
 import Video from "react-native-video";
 
@@ -19,7 +20,7 @@ import data from "../components/data";
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from "./utils";
 import { getMusicNoteAnim } from "./utils";
 
-export default function VideoItem({ data, isActive }) {
+export default function VideoItem({ data, isActive, mute }) {
   const { uri, caption, channelName, musicName, likes, comments, avatarUri } =
     data;
 
@@ -92,6 +93,7 @@ export default function VideoItem({ data, isActive }) {
 
   const bottomTabHeight = useBottomTabBarHeight();
   const statusBarHeight = StatusBar.currentHeight || 0;
+
   return (
     <View
       style={[
@@ -106,6 +108,7 @@ export default function VideoItem({ data, isActive }) {
         resizeMode='cover'
         paused={!isActive}
         repeat
+        muted={mute}
       />
 
       <View style={styles.bottomSection}>

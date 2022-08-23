@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Image,
   Platform,
+  Alert,
 } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Camera, useCameraDevices } from "react-native-vision-camera";
@@ -46,6 +47,7 @@ const RVScreen = () => {
   const hasPermission = async () => {
     await Camera.requestCameraPermission();
     await Camera.requestMicrophonePermission();
+    await MediaLibrary.requestPermissionsAsync();
   };
 
   const startRecording = async () => {
@@ -71,9 +73,11 @@ const RVScreen = () => {
     }
   };
 
-  const getAudio = async () => {
-    const res = await MediaLibrary.getAssetInfoAsync({ mediaType: "audio" });
-    console.log("res", res);
+  const getAudiofiles = async () => {
+    const res = await MediaLibrary.getAssetsAsync({
+      mediaType: MediaLibrary.MediaType.audio,
+    });
+    console.log("res", res.assets);
   };
 
   return (
@@ -116,7 +120,7 @@ const RVScreen = () => {
           alignSelf: "center",
           top: Platform.OS === "ios" ? 60 : 30,
         }}
-        onPress={() => getAudio()}>
+        onPress={() => getAudiofiles()}>
         <MaterialIcons name='audiotrack' size={30} color='white' />
         <Text style={{ color: "white", fontWeight: "700" }}>Audio</Text>
       </TouchableOpacity>
