@@ -13,10 +13,21 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Camera, useCameraDevices } from "react-native-vision-camera";
 import * as MediaLibrary from "expo-media-library";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import {
+  VESDK,
+  Configuration,
+  VideoEditorModal,
+} from "react-native-videoeditorsdk";
 
-const RVScreen = () => {
+const RVScreen = ({ navigation }) => {
   const [isRecording, setIsRecording] = useState(false);
-  // const [audio, setAudio] = useState({uri: '', type: ''});
+  const [disabled, setDisabled] = useState(true);
+  const [visiabled, setVisiabled] = useState(false);
+  const [videoUri, setVideoUri] = useState(null);
+  const [audioFiles, setAudioFiles] = useState({
+    identifier: "",
+    audioURI: "",
+  });
   const [cameraPosition, setCameraPosition] = useState("front");
   const devices = useCameraDevices();
   //   const device = devices.back;
@@ -25,20 +36,33 @@ const RVScreen = () => {
 
   const camera = useRef();
 
-  // useEffect(() => {
-  //   console.log('audio', audio);
-  // }, [audio]);
-
   useEffect(() => {
-    hasPermission();
+    try {
+      hasPermission();
+    } catch (error) {
+      console.log("err", error);
+    }
   }, []);
 
   useEffect(() => {
+    try {
+      getAudiofiles();
+    } catch (error) {
+      console.log("error", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log("audioFiles", audioFiles);
+  }, [audioFiles]);
+
+  useEffect(() => {
     if (isRecording) {
-      startRecording();
+      startVideoRecording();
       setTimeout(() => {
         setIsRecording(false);
-      }, 15000);
+        setDisabled(false);
+      }, 1000);
     } else {
       stopRecording();
     }
@@ -50,19 +74,35 @@ const RVScreen = () => {
     await MediaLibrary.requestPermissionsAsync();
   };
 
-  const startRecording = async () => {
+  const startVideoRecording = async () => {
     camera.current.startRecording({
-      onRecordingFinished: (video) => console.log(video),
+      onRecordingFinished: (video) => setVideoUri(video.path),
       onRecordingError: (error) => console.error(error),
     });
   };
 
+  // const pauseVideoRecording = async () => {
+  //   try {
+  //     await camera.current.pauseRecording();
+  //   } catch (error) {
+  //     console.log("err", error);
+  //   }
+  // };
+  // const resumeVideoRecording = async () => {
+  //   await camera.current.resumeRecording();
+  // };
+
   const stopRecording = async () => {
-    await camera?.current?.stopRecording();
+    try {
+      await camera?.current?.stopRecording();
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   const onRecord = async () => {
     setIsRecording(!isRecording);
+    // resumeVideoRecording();
   };
 
   const toggleCameraType = () => {
@@ -73,11 +113,53 @@ const RVScreen = () => {
     }
   };
 
+  // const editVideo = () => {
+  //   // let video =
+  //   //   "https://v.pinimg.com/videos/mc/720p/f6/88/88/f68888290d70aca3cbd4ad9cd3aa732f.mp4";
+  //   // // Set up configuration
+  //   // // let configuration: Configuration = {
+  //   // //   // audio: {
+  //   // //   //   categories: [audioFiles],
+  //   // //   // },
+  //   // //   // Configure audio tool
+  //   // //   audio: {
+  //   // //     // Configure audio clip library
+  //   // //     categories: [
+  //   // //       // Create audio clip category with audio clips
+  //   // //       {
+  //   // //         identifier: "example_audio_category_custom",
+  //   // //         name: "Custom",
+  //   // //         items: [audioFiles],
+  //   // //       },
+  //   // //     ],
+  //   // //   },
+  //   // // };
+  //   // VESDK.openEditor(video).then(
+  //   //   (result) => {
+  //   //     console.log(result);
+  //   //   },
+  //   //   (error) => {
+  //   //     console.log(error);
+  //   //   }
+  //   // );
+  //   return (
+
+  //   );
+  // };
+
   const getAudiofiles = async () => {
     const res = await MediaLibrary.getAssetsAsync({
       mediaType: MediaLibrary.MediaType.audio,
     });
-    console.log("res", res.assets);
+    console.log("res.assets", res.assets);
+
+    const audUri = res.assets.map((val) => val.uri);
+    const audFileName = res.assets.map((val) => val.filename);
+
+    const uri = audUri.toString();
+    const filename = audFileName.toString();
+
+    setAudioFiles({ identifier: filename, audioURI: uri });
   };
 
   return (
@@ -112,18 +194,42 @@ const RVScreen = () => {
         <MaterialIcons name='flip-camera-android' size={30} color='white' />
       </TouchableOpacity>
       <TouchableOpacity
-        style={{
-          position: "absolute",
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
-          alignSelf: "center",
-          top: Platform.OS === "ios" ? 60 : 30,
+        disabled={disabled}
+        onPress={() => {
+          setVisiabled(true);
         }}
-        onPress={() => getAudiofiles()}>
-        <MaterialIcons name='audiotrack' size={30} color='white' />
-        <Text style={{ color: "white", fontWeight: "700" }}>Audio</Text>
+        style={{ position: "absolute", bottom: 20, right: 20 }}>
+        <Text
+          style={{ color: disabled === true ? "white" : "red", fontSize: 20 }}>
+          {" "}
+          Right
+        </Text>
       </TouchableOpacity>
+      {visiabled === true && (
+        <VideoEditorModal
+          visible={visiabled}
+          video={{
+            uri: videoUri,
+          }}
+          // configuration={{ audio: [{ categories: [audioFiles] }] }}
+          // configuration={{
+          //   audio: [
+          //     {
+          //       categories: [
+          //         {
+          //           items: [
+          //             {
+          //               identifier: audioFiles.identifier,
+          //               audioURI: audioFiles.audioURI,
+          //             },
+          //           ],
+          //         },
+          //       ],
+          //     },
+          //   ],
+          // }}
+        />
+      )}
     </>
   );
 };

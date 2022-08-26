@@ -1,0 +1,243 @@
+// /** @format */
+
+// import {
+//   View,
+//   Text,
+//   TouchableOpacity,
+//   StyleSheet,
+//   Image,
+//   Platform,
+//   Alert,
+// } from "react-native";
+// import React, { useCallback, useEffect, useRef, useState } from "react";
+// // import { Camera, useCameraDevices } from "react-native-vision-camera";
+// import * as MediaLibrary from "expo-media-library";
+// import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+// // import { VESDK, Configuration } from "react-native-videoeditorsdk";
+
+// const RVScreen = () => {
+//   const [isRecording, setIsRecording] = useState(false);
+//   const [disabled, setDisabled] = useState(true);
+//   const [videoUri, setVideoUri] = useState(null);
+//   const [audioUri, setAudioUri] = useState(null);
+//   const [audioFileName, setAudioFileName] = useState(null);
+//   const [cameraPosition, setCameraPosition] = useState("front");
+//   const devices = useCameraDevices();
+//   //   const device = devices.back;
+
+//   const device = cameraPosition == "front" ? devices.front : devices.back;
+
+//   const camera = useRef();
+
+//   useEffect(() => {
+//     try {
+//       hasPermission();
+//     } catch (error) {
+//       console.log("err", error);
+//     }
+//   }, []);
+
+//   // useEffect(() => {
+//   //   getAudiofiles();
+//   // }, []);
+
+//   useEffect(() => {
+//     if (isRecording) {
+//       startVideoRecording();
+//       setTimeout(() => {
+//         setIsRecording(false);
+//         setDisabled(false);
+//       }, 15000);
+//     } else {
+//       pauseVideoRecording();
+//     }
+//   }, [isRecording]);
+
+//   const hasPermission = async () => {
+//     await Camera.requestCameraPermission();
+//     await Camera.requestMicrophonePermission();
+//     await MediaLibrary.requestPermissionsAsync();
+//   };
+
+//   const startVideoRecording = async () => {
+//     camera.current.startRecording({
+//       onRecordingFinished: (video) => setVideoUri(video),
+//       onRecordingError: (error) => console.error(error),
+//     });
+//   };
+
+//   const pauseVideoRecording = async () => {
+//     try {
+//       await camera.current.pauseRecording();
+//     } catch (error) {
+//       console.log("err", error);
+//     }
+//   };
+//   // const resumeVideoRecording = async () => {
+//   //   await camera.current.resumeRecording();
+//   // };
+
+//   const stopRecording = async () => {
+//     await camera?.current?.stopRecording();
+//   };
+
+//   const onRecord = async () => {
+//     setIsRecording(!isRecording);
+//     // resumeVideoRecording();
+//   };
+
+//   const toggleCameraType = () => {
+//     if (cameraPosition === "front") {
+//       setCameraPosition("back");
+//     } else {
+//       setCameraPosition("front");
+//     }
+//   };
+
+//   const editVideo = () => {
+//     // stopRecording();
+//     // if (videoUri !== null) {
+//     //   let VideoPath = videoUri.path;
+//     //   console.log("videoUri", videoUri);
+//     //   openEditor(VideoPath);
+//     // }
+//   };
+
+//   // const getAudiofiles = async () => {
+//   //   const res = await MediaLibrary.getAssetsAsync({
+//   //     mediaType: MediaLibrary.MediaType.audio,
+//   //   });
+//   //   console.log("res.assets", res.assets);
+
+//   //   // const audUri = res.assets.map((val) => val.uri);
+//   //   // const audFileName = res.assets.map((val) => val.filename);
+
+//   //   // setAudioUri(audUri);
+//   //   // setAudioFileName(audFileName);
+//   // };
+
+//   // const openEditor = (videoUri, audioUri, audioFileName) => {
+//   //   // Set up sample video
+
+//   //   // Set up configuration
+//   //   let configuration: Configuration = {
+//   //     // Configure audio tool
+//   //     audio: {
+//   //       // Configure audio clip library
+//   //       categories: [
+//   //         // Create audio clip category with audio clips
+//   //         {
+//   //           identifier: "example_audio_category_custom",
+//   //           name: "Custom",
+//   //           items: [
+//   //             {
+//   //               identifier: "advertising.mp3",
+//   //               audioURI: "file:///storage/emulated/0/advertising.mp3",
+//   //             },
+//   //           ],
+//   //         },
+//   //       ],
+//   //     },
+//   //   };
+//   //   VESDK.openEditor(videoUri, configuration).then(
+//   //     (result) => {
+//   //       console.log(result);
+//   //     },
+//   //     (error) => {
+//   //       console.log(error);
+//   //     }
+//   //   );
+//   // };
+
+//   return (
+//     <>
+//       {device == null ? (
+//         <View style={{ flex: 1 }} />
+//       ) : (
+//         <Camera
+//           device={device}
+//           video={true}
+//           audio={true}
+//           isActive={true}
+//           ref={camera}
+//           //   style={styles.preview}
+//           style={StyleSheet.absoluteFill}
+//         />
+//       )}
+//       <TouchableOpacity
+//         onPress={() => {
+//           onRecord();
+//         }}
+//         activeOpacity={0.7}
+//         style={isRecording ? styles.buttonStop : styles.buttonRecord}
+//       />
+//       <TouchableOpacity
+//         style={{
+//           position: "absolute",
+//           right: Platform.OS === "ios" ? 30 : 20,
+//           top: Platform.OS === "ios" ? 60 : 30,
+//         }}
+//         onPress={() => toggleCameraType()}>
+//         <MaterialIcons name='flip-camera-android' size={30} color='white' />
+//       </TouchableOpacity>
+//       <TouchableOpacity
+//         disabled={disabled}
+//         onPress={() => editVideo()}
+//         style={{ position: "absolute", bottom: 20, right: 20 }}>
+//         <Text
+//           style={{ color: disabled === true ? "white" : "red", fontSize: 20 }}>
+//           {" "}
+//           Right
+//         </Text>
+//       </TouchableOpacity>
+//       {/* <TouchableOpacity
+//         style={{
+//           position: "absolute",
+//           flexDirection: "row",
+//           alignItems: "center",
+//           justifyContent: "center",
+//           alignSelf: "center",
+//           top: Platform.OS === "ios" ? 60 : 30,
+//         }}
+//         onPress={() => getAudiofiles()}>
+//         <MaterialIcons name='audiotrack' size={30} color='white' />
+//         <Text style={{ color: "white", fontWeight: "700" }}>Audio</Text>
+//       </TouchableOpacity> */}
+//     </>
+//   );
+// };
+
+// export default RVScreen;
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     flexDirection: "column",
+//     backgroundColor: "black",
+//   },
+//   preview: {
+//     flex: 1,
+//     justifyContent: "flex-end",
+//     alignItems: "center",
+//   },
+//   buttonRecord: {
+//     position: "absolute",
+//     bottom: 0,
+//     alignSelf: "center",
+//     marginVertical: 10,
+//     height: 50,
+//     width: 50,
+//     borderRadius: 25,
+//     backgroundColor: "#ff4343",
+//   },
+//   buttonStop: {
+//     position: "absolute",
+//     bottom: 0,
+//     alignSelf: "center",
+//     marginVertical: 20,
+//     height: 30,
+//     width: 30,
+//     borderRadius: 3,
+//     backgroundColor: "#ff4343",
+//   },
+// });

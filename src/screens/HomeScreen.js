@@ -2,7 +2,7 @@
 
 import { View, Text, FlatList } from "react-native";
 import React, { useState } from "react";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+// import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import data from "../components/data";
 import VideoPlayer from "../components/VideoPlayer";
 import { WINDOW_HEIGHT } from "../components/utils";
@@ -11,7 +11,7 @@ import { useIsFocused } from "@react-navigation/native";
 const HomeScreen = () => {
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
 
-  const bottomTabHeight = useBottomTabBarHeight();
+  // const bottomTabHeight = useBottomTabBarHeight();
 
   const mute = useIsFocused();
 
@@ -27,9 +27,7 @@ const HomeScreen = () => {
         />
       )}
       onScroll={(e) => {
-        const index = Math.round(
-          e.nativeEvent.contentOffset.y / (WINDOW_HEIGHT - bottomTabHeight)
-        );
+        const index = Math.round(e.nativeEvent.contentOffset.y / WINDOW_HEIGHT);
         setActiveVideoIndex(index);
       }}
     />
