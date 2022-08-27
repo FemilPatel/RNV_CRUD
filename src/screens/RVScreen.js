@@ -8,6 +8,8 @@ import {
   Image,
   Platform,
   Alert,
+  Animated,
+  Easing,
 } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Camera, useCameraDevices } from "react-native-vision-camera";
@@ -33,8 +35,22 @@ const RVScreen = ({ navigation }) => {
   //   const device = devices.back;
 
   const device = cameraPosition == "front" ? devices.front : devices.back;
-
   const camera = useRef();
+
+  const barWidth = useRef(new Animated.Value(0)).current;
+  const progressPercent = barWidth.interpolate({
+    inputRange: [0, 100],
+    outputRange: ["0%", `100%`],
+  });
+
+  const onAnimate = () => {
+    barWidth.setValue(0);
+    Animated.timing(barWidth, {
+      toValue: 100,
+      duration: 15000,
+      useNativeDriver: false,
+    }).start();
+  };
 
   useEffect(() => {
     try {
@@ -44,17 +60,13 @@ const RVScreen = ({ navigation }) => {
     }
   }, []);
 
-  useEffect(() => {
-    try {
-      getAudiofiles();
-    } catch (error) {
-      console.log("error", error);
-    }
-  }, []);
-
-  useEffect(() => {
-    console.log("audioFiles", audioFiles);
-  }, [audioFiles]);
+  // useEffect(() => {
+  //   try {
+  //     getAudiofiles();
+  //   } catch (error) {
+  //     console.log("error", error);
+  //   }
+  // }, []);
 
   useEffect(() => {
     if (isRecording) {
@@ -62,7 +74,7 @@ const RVScreen = ({ navigation }) => {
       setTimeout(() => {
         setIsRecording(false);
         setDisabled(false);
-      }, 1000);
+      }, 15000);
     } else {
       stopRecording();
     }
@@ -147,20 +159,20 @@ const RVScreen = ({ navigation }) => {
   //   );
   // };
 
-  const getAudiofiles = async () => {
-    const res = await MediaLibrary.getAssetsAsync({
-      mediaType: MediaLibrary.MediaType.audio,
-    });
-    console.log("res.assets", res.assets);
+  // const getAudiofiles = async () => {
+  //   const res = await MediaLibrary.getAssetsAsync({
+  //     mediaType: MediaLibrary.MediaType.audio,
+  //   });
+  //   console.log("res.assets", res.assets);
 
-    const audUri = res.assets.map((val) => val.uri);
-    const audFileName = res.assets.map((val) => val.filename);
+  //   const audUri = res.assets.map((val) => val.uri);
+  //   const audFileName = res.assets.map((val) => val.filename);
 
-    const uri = audUri.toString();
-    const filename = audFileName.toString();
+  //   const uri = audUri.toString();
+  //   const filename = audFileName.toString();
 
-    setAudioFiles({ identifier: filename, audioURI: uri });
-  };
+  //   setAudioFiles({ identifier: filename, audioURI: uri });
+  // };
 
   return (
     <>
@@ -177,9 +189,30 @@ const RVScreen = ({ navigation }) => {
           style={StyleSheet.absoluteFill}
         />
       )}
+      <View
+        style={{
+          height: 7,
+          marginTop: 10,
+          // borderRadius: 5,
+          // width: "90%",
+          marginHorizontal: 10,
+          borderWidth: 1,
+          borderColor: "#000",
+        }}>
+        <Animated.View
+          style={[
+            styles.bar,
+            {
+              backgroundColor: "red",
+              width: progressPercent,
+            },
+          ]}
+        />
+      </View>
       <TouchableOpacity
         onPress={() => {
           onRecord();
+          onAnimate();
         }}
         activeOpacity={0.7}
         style={isRecording ? styles.buttonStop : styles.buttonRecord}
@@ -188,7 +221,7 @@ const RVScreen = ({ navigation }) => {
         style={{
           position: "absolute",
           right: Platform.OS === "ios" ? 30 : 20,
-          top: Platform.OS === "ios" ? 60 : 30,
+          top: Platform.OS === "ios" ? 100 : 50,
         }}
         onPress={() => toggleCameraType()}>
         <MaterialIcons name='flip-camera-android' size={30} color='white' />
@@ -266,5 +299,9 @@ const styles = StyleSheet.create({
     width: 30,
     borderRadius: 3,
     backgroundColor: "#ff4343",
+  },
+  bar: {
+    // borderRadius: 5,
+    height: 5,
   },
 });
