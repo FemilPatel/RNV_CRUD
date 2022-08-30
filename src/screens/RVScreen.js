@@ -159,20 +159,20 @@ const RVScreen = ({ navigation }) => {
   //   );
   // };
 
-  // const getAudiofiles = async () => {
-  //   const res = await MediaLibrary.getAssetsAsync({
-  //     mediaType: MediaLibrary.MediaType.audio,
-  //   });
-  //   console.log("res.assets", res.assets);
+  const getAudiofiles = async () => {
+    const res = await MediaLibrary.getAssetsAsync({
+      mediaType: MediaLibrary.MediaType.audio,
+    });
+    console.log("res", res);
 
-  //   const audUri = res.assets.map((val) => val.uri);
-  //   const audFileName = res.assets.map((val) => val.filename);
+    // const audUri = res.assets.map((val) => val.uri);
+    // const audFileName = res.assets.map((val) => val.filename);
 
-  //   const uri = audUri.toString();
-  //   const filename = audFileName.toString();
+    // const uri = audUri.toString();
+    // const filename = audFileName.toString();
 
-  //   setAudioFiles({ identifier: filename, audioURI: uri });
-  // };
+    // setAudioFiles({ identifier: filename, audioURI: uri });
+  };
 
   return (
     <>
@@ -225,6 +225,22 @@ const RVScreen = ({ navigation }) => {
         }}
         onPress={() => toggleCameraType()}>
         <MaterialIcons name='flip-camera-android' size={30} color='white' />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "absolute",
+          // right: Platform.OS === "ios" ? 30 : 20,
+          alignSelf: "center",
+          top: Platform.OS === "ios" ? 100 : 50,
+        }}
+        onPress={() => getAudiofiles()}>
+        <MaterialIcons name='audiotrack' size={30} color='white' />
+        <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}>
+          Audio
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity
         disabled={disabled}
