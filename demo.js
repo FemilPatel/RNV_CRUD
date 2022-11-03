@@ -24,7 +24,7 @@ const demo = () => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={{ alignItems: "center", justifyContent: "center" }}>
-        <Text style={{ fontSize: 25 }}> CRUD </Text>
+        <Text style={{ fontSize: 27 }}> CRUD </Text>
         <TextInput
           value={name}
           style={{
