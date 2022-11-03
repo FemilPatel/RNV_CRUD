@@ -91,12 +91,15 @@ export default function VideoItem({ data, isActive, mute }) {
     musicNoteAnimatedValue2,
   ]);
 
-  // const bottomTabHeight = useBottomTabBarHeight();
+  const bottomTabHeight = useBottomTabBarHeight();
   const statusBarHeight = StatusBar.currentHeight || 0;
 
   return (
     <View
-      style={[styles.container, { height: WINDOW_HEIGHT - statusBarHeight }]}>
+      style={[
+        styles.container,
+        { height: WINDOW_HEIGHT - statusBarHeight - bottomTabHeight },
+      ]}>
       <StatusBar barStyle={"light-content"} backgroundColor={"#000"} />
 
       <Video

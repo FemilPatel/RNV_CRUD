@@ -10,26 +10,21 @@ import {
   Alert,
   Animated,
   Easing,
+  FlatList,
+  ScrollView,
 } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Camera, useCameraDevices } from "react-native-vision-camera";
 import * as MediaLibrary from "expo-media-library";
+import * as FileSystem from "expo-file-system";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import {
-  VESDK,
-  Configuration,
-  VideoEditorModal,
-} from "react-native-videoeditorsdk";
 
 const RVScreen = ({ navigation }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [disabled, setDisabled] = useState(true);
   const [visiabled, setVisiabled] = useState(false);
   const [videoUri, setVideoUri] = useState(null);
-  const [audioFiles, setAudioFiles] = useState({
-    identifier: "",
-    audioURI: "",
-  });
+  const [audioFiles, setAudioFiles] = useState([]);
   const [cameraPosition, setCameraPosition] = useState("front");
   const devices = useCameraDevices();
   //   const device = devices.back;
@@ -59,6 +54,12 @@ const RVScreen = ({ navigation }) => {
       console.log("err", error);
     }
   }, []);
+
+  useEffect(() => {
+    if (visiabled === true) {
+      getAudiofiles();
+    }
+  }, [visiabled]);
 
   // useEffect(() => {
   //   try {
@@ -125,45 +126,59 @@ const RVScreen = ({ navigation }) => {
     }
   };
 
-  // const editVideo = () => {
-  //   // let video =
-  //   //   "https://v.pinimg.com/videos/mc/720p/f6/88/88/f68888290d70aca3cbd4ad9cd3aa732f.mp4";
-  //   // // Set up configuration
-  //   // // let configuration: Configuration = {
-  //   // //   // audio: {
-  //   // //   //   categories: [audioFiles],
-  //   // //   // },
-  //   // //   // Configure audio tool
-  //   // //   audio: {
-  //   // //     // Configure audio clip library
-  //   // //     categories: [
-  //   // //       // Create audio clip category with audio clips
-  //   // //       {
-  //   // //         identifier: "example_audio_category_custom",
-  //   // //         name: "Custom",
-  //   // //         items: [audioFiles],
-  //   // //       },
-  //   // //     ],
-  //   // //   },
-  //   // // };
-  //   // VESDK.openEditor(video).then(
-  //   //   (result) => {
-  //   //     console.log(result);
-  //   //   },
-  //   //   (error) => {
-  //   //     console.log(error);
-  //   //   }
-  //   // );
-  //   return (
-
-  //   );
+  // const downloadFile = async () => {
+  //   const uri = "http://techslides.com/demos/sample-videos/small.mp4";
+  //   let fileUri = FileSystem.documentDirectory + "small.mp4";
+  //   FileSystem.downloadAsync(uri, fileUri)
+  //     .then(({ uri }) => {
+  //       saveFile(uri);
+  //     })
+  //     .catch((error) => {
+  //       console.error(error);
+  //     });
   // };
 
+  // const saveFile = async (fileUri) => {
+  //   // const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+  //   // if (status === "granted") {
+  //   const asset = await MediaLibrary.createAssetAsync(fileUri);
+  //   await MediaLibrary.createAlbumAsync("Like Video", asset)
+  //     .then((res) => {
+  //       if (res) {
+  //         Alert.alert("download complete");
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       if (err) {
+  //         Alert.alert("issue with download contact support");
+  //       }
+  //     });
+  //   // }
+  // };
+
+  const editVideo = (videoUri, audioUri) => {
+    setVisiabled(false);
+    console.log("videoUri", videoUri);
+    console.log("item.uri", audioUri);
+  };
+
   const getAudiofiles = async () => {
-    const res = await MediaLibrary.getAssetsAsync({
-      mediaType: MediaLibrary.MediaType.audio,
-    });
-    console.log("res", res);
+    try {
+      const res = await MediaLibrary.getAssetsAsync({
+        mediaType: MediaLibrary.MediaType.audio,
+      });
+      let newres = await MediaLibrary.getAssetsAsync({
+        mediaType: MediaLibrary.MediaType.audio,
+        first: res.totalCount,
+      });
+
+      if (newres?.assets) {
+        setAudioFiles(newres?.assets);
+        setVisiabled(true);
+      }
+    } catch (err) {
+      console.log("err", err);
+    }
 
     // const audUri = res.assets.map((val) => val.uri);
     // const audFileName = res.assets.map((val) => val.filename);
@@ -179,82 +194,146 @@ const RVScreen = ({ navigation }) => {
       {device == null ? (
         <View style={{ flex: 1 }} />
       ) : (
-        <Camera
-          device={device}
-          video={true}
-          audio={true}
-          isActive={true}
-          ref={camera}
-          //   style={styles.preview}
-          style={StyleSheet.absoluteFill}
-        />
+        <View style={{ marginTop: Platform.OS === "ios" ? 70 : 50 }}>
+          {/* {visiabled === false && (
+            <View
+              style={{
+                backgroundColor: "rgba(100, 100, 100, 0.5)",
+                position: "absolute",
+                height: "93%",
+                width: "100%",
+                zIndex: 1,
+              }}
+            />
+          )} */}
+
+          <Camera
+            device={device}
+            video={true}
+            // audio={true}
+            isActive={true}
+            ref={camera}
+            //   style={styles.preview}
+            style={{ height: "100%", width: "100%" }}
+          />
+        </View>
       )}
+
       <View
         style={{
-          height: 7,
-          marginTop: 10,
-          // borderRadius: 5,
-          // width: "90%",
-          marginHorizontal: 10,
-          borderWidth: 1,
-          borderColor: "#000",
-        }}>
-        <Animated.View
-          style={[
-            styles.bar,
-            {
-              backgroundColor: "red",
-              width: progressPercent,
-            },
-          ]}
-        />
-      </View>
-      <TouchableOpacity
-        onPress={() => {
-          onRecord();
-          onAnimate();
-        }}
-        activeOpacity={0.7}
-        style={isRecording ? styles.buttonStop : styles.buttonRecord}
-      />
-      <TouchableOpacity
-        style={{
           position: "absolute",
-          right: Platform.OS === "ios" ? 30 : 20,
-          top: Platform.OS === "ios" ? 100 : 50,
-        }}
-        onPress={() => toggleCameraType()}>
-        <MaterialIcons name='flip-camera-android' size={30} color='white' />
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={{
           flexDirection: "row",
+          width: "100%",
+          alignItems: "center",
+          // marginTop: 10,
+          paddingVertical: Platform.OS === "ios" ? 20 : 10,
+          justifyContent: "center",
+          backgroundColor: "#000000",
+        }}>
+        <TouchableOpacity
+          style={{ width: "35%", paddingLeft: 20 }}
+          onPress={() => toggleCameraType()}>
+          <MaterialIcons name='flip-camera-android' size={30} color='white' />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => getAudiofiles()}
+          style={{ flexDirection: "row", width: "65%", paddingLeft: 20 }}>
+          <MaterialIcons name='audiotrack' size={30} color='white' />
+          <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}>
+            Audio
+          </Text>
+        </TouchableOpacity>
+      </View>
+      {visiabled ? (
+        <View
+          style={{
+            position: "absolute",
+            backgroundColor: "#fff",
+            height: "100%",
+            width: "100%",
+          }}>
+          <ScrollView style={{ flexGrow: 1 }}>
+            {audioFiles.map((item, index) => {
+              return (
+                <TouchableOpacity
+                  onPress={() => {
+                    editVideo(videoUri, item.uri);
+                  }}>
+                  <View style={{ marginVertical: 10, marginHorizontal: 10 }}>
+                    <Text>{item.filename}</Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+      ) : null}
+      <View
+        style={{
+          backgroundColor: "#000",
+          position: "absolute",
+          flexDirection: "row",
+          width: "100%",
           alignItems: "center",
           justifyContent: "center",
-          position: "absolute",
-          // right: Platform.OS === "ios" ? 30 : 20,
-          alignSelf: "center",
-          top: Platform.OS === "ios" ? 100 : 50,
-        }}
-        onPress={() => getAudiofiles()}>
-        <MaterialIcons name='audiotrack' size={30} color='white' />
-        <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}>
-          Audio
-        </Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        disabled={disabled}
-        onPress={() => {
-          setVisiabled(true);
-        }}
-        style={{ position: "absolute", bottom: 20, right: 20 }}>
-        <Text
-          style={{ color: disabled === true ? "white" : "red", fontSize: 20 }}>
-          {" "}
-          Right
-        </Text>
-      </TouchableOpacity>
-      {visiabled === true && (
+          bottom: 0,
+          height: "12.6%",
+          // paddingVertical: 10,
+        }}>
+        <TouchableOpacity
+          onPress={() => {
+            onRecord();
+            onAnimate();
+          }}
+          activeOpacity={0.7}
+          style={isRecording ? styles.buttonStop : styles.buttonRecord}
+        />
+
+        <TouchableOpacity
+          style={{
+            // width: "35%",
+            paddingRight: 20,
+            // backgroundColor: "green",
+            position: "absolute",
+            right: 0,
+          }}
+          disabled={disabled}
+          onPress={() => {
+            setVisiabled(true);
+
+            // downloadFile();
+          }}>
+          <Text
+            style={{
+              color: disabled === true ? "white" : "red",
+              fontSize: 20,
+            }}>
+            {" "}
+            Right
+          </Text>
+        </TouchableOpacity>
+        <View
+          style={{
+            height: 7,
+            marginVertical: 5,
+            width: "100%",
+            bottom: 0,
+            borderWidth: 1,
+            borderColor: "#000",
+            position: "absolute",
+          }}>
+          <Animated.View
+            style={[
+              styles.bar,
+              {
+                backgroundColor: "red",
+                width: progressPercent,
+              },
+            ]}
+          />
+        </View>
+      </View>
+      {/* {visiabled === true && (
         <VideoEditorModal
           visible={visiabled}
           video={{
@@ -278,7 +357,7 @@ const RVScreen = ({ navigation }) => {
           //   ],
           // }}
         />
-      )}
+      )} */}
     </>
   );
 };
@@ -297,22 +376,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   buttonRecord: {
-    position: "absolute",
-    bottom: 0,
+    // position: "absolute",
+    // bottom: 0,
     alignSelf: "center",
-    marginVertical: 10,
-    height: 50,
-    width: 50,
-    borderRadius: 25,
+    // marginVertical: 10,
+    height: 55,
+    width: 55,
+    borderRadius: 30,
     backgroundColor: "#ff4343",
   },
   buttonStop: {
-    position: "absolute",
-    bottom: 0,
+    // position: "absolute",
+    // bottom: 0,
     alignSelf: "center",
-    marginVertical: 20,
-    height: 30,
-    width: 30,
+    // marginVertical: 20,
+    height: 35,
+    width: 35,
     borderRadius: 3,
     backgroundColor: "#ff4343",
   },

@@ -72,6 +72,8 @@
     <string>Light</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
+    <key>UISupportsDocumentBrowser</key>
+    <true/>
     <key>NSMicrophoneUsageDescription</key>
     <string>Allow $(PRODUCT_NAME) to access your microphone</string>
     <key>NSCameraUsageDescription</key>

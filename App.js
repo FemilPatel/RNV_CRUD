@@ -16,7 +16,7 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName={"RVScreen"}
+        initialRouteName={"EditVideo"}
         screenOptions={{ headerShown: false }}>
         <Stack.Screen name={"RVScreen"} component={RVScreen} />
         <Stack.Screen name={"EditVideo"} component={EditVideoScreen} />
