@@ -11,6 +11,7 @@
     "@react-navigation/bottom-tabs": "^6.3.2",
     "@react-navigation/native": "^6.0.11",
     "@react-navigation/native-stack": "^6.8.0",
+    "@redux-devtools/extension": "^3.2.3",
     "@reduxjs/toolkit": "^1.8.6",
     "expo": "^45.0.0",
     "expo-file-system": "~14.0.0",
@@ -31,11 +32,14 @@
     "react-native-web": "0.17.7",
     "react-native-webview": "^11.23.1",
     "react-redux": "^8.0.4",
-    "redux": "^4.2.0"
+    "redux": "^4.2.0",
+    "redux-logger": "^3.0.6",
+    "redux-saga": "^1.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
-    "@redux-devtools/core": "^3.13.1"
+    "@redux-devtools/core": "^3.13.1",
+    "remote-redux-devtools": "^0.5.16"
   },
   "private": true
 }
